@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'db.php';
+require_once 'src/db.php';
 
 if (!isset($_SESSION['idusuario'])) {
     header("Location: login.php");
@@ -67,7 +67,7 @@ if (!$result) {
         </div>
     </div>
 
-    <script src="TelaHistorico.js"></script>
+    <script src="JS/TelaHistorico.js"></script>
 </body>
 </html>
 

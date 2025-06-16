@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'db.php';
+require_once 'src/db.php';
 
 if (!isset($_SESSION['idusuario'])) {
     header("Location: login.php");
@@ -56,7 +56,7 @@ if (!$result) {
               <p>Continue praticando e melhore sua pontuação! 🚀</p>
           </div>
      </div>
-<script src="telaclassif.js"></script>
+<script src="JS/telaclassif.js"></script>
 </body>
 </html>
 

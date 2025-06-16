@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'db.php';
+require_once 'src/db.php';
 
 if (!isset($_SESSION['idusuario'])) {
     header("Location: login.php");
@@ -61,7 +61,7 @@ $stmt->close();
         </div>
     </div>
 
-    <script src="TelaScore.js"></script>
+    <script src="JS/TelaScore.js"></script>
 </body>
 </html>
 

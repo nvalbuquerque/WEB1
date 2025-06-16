@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'validate.php';
-require_once 'db.php';
+require_once 'src/validate.php';
+require_once 'src/db.php';
 
 $existencia = true;
 $erroEmail = '';

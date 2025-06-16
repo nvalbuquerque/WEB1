@@ -46,6 +46,6 @@ if (!isset($_SESSION['idusuario'])) {
         </div>
     </div>
 
-    <script src="Telainicio.js"></script>
+    <script src="JS/Telainicio.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 <?php
-require_once 'validate.php';
-require_once 'db.php';
+require_once 'src/validate.php';
+require_once 'src/db.php';
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Usuário</title>
-    <link rel="stylesheet" href="csspadrao.css">
+    <link rel="stylesheet" href="CSS/csspadrao.css">
 </head>
 <body>
     <div class="background"></div>

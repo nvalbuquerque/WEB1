@@ -1,3 +1,8 @@
+<?php
+session_start();
+require_once 'src/db.php';
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
