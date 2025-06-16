@@ -1,0 +1,51 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['idusuario'])) {
+    header("Location: login.php");
+    exit();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="telainicial.css">
+    <title>Início</title>
+</head>
+<body>
+    <div class="background"></div>
+
+    <div class="retangulo">
+        <h1>Início</h1>
+
+        <div class="Jogar">
+            <button id="Botao">Jogar</button>
+        </div>
+
+        <div class="Historico">
+            <button id="Botao" onclick="window.location.href='telaHistorico.php'">Histórico</button>
+        </div>
+
+        <div class="Classificacao">
+            <button id="Botao" onclick="window.location.href='/typetest-main/TelaClassificacao.php'">Classificação</button>
+        </div>
+
+        <div class="Liga">
+            <button id="Botao" onclick="window.location.href='/typetest-main/ligas.php'">Ligas</button>
+        </div>
+
+        <div class="Sair">
+            <button id="Botao" onclick="window.location.href='logout.php'">Sair</button>
+        </div>
+
+        <div id="texto">
+            <h5>O melhor jogo de digitação!</h5>
+        </div>
+    </div>
+
+    <script src="Telainicio.js"></script>
+</body>
+</html>
