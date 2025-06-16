@@ -30,11 +30,11 @@ if (!isset($_SESSION['idusuario'])) {
         </div>
 
         <div class="Classificacao">
-            <button id="Botao" onclick="window.location.href='/typetest-main/TelaClassificacao.php'">Classificação</button>
+            <button id="Botao" onclick="window.location.href='TelaClassificacao.php'">Classificação</button>
         </div>
 
         <div class="Liga">
-            <button id="Botao" onclick="window.location.href='/typetest-main/ligas.php'">Ligas</button>
+            <button id="Botao" onclick="window.location.href='ligas.php'">Ligas</button>
         </div>
 
         <div class="Sair">
