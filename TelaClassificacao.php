@@ -26,7 +26,7 @@ if (!$result) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tela Classificação</title>
-    <link rel="stylesheet" href="telaclassif.css" />
+    <link rel="stylesheet" href="CSS/telaclassif.css" />
 </head>
 <body>
      <div class="background"></div>

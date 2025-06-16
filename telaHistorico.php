@@ -25,7 +25,7 @@ if (!$result) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tela Histórico</title>
-    <link rel="stylesheet" href="telahistorico.css" />
+    <link rel="stylesheet" href="CSS/telahistorico.css" />
 </head>
 <body>
     <div class="background"></div>

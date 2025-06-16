@@ -20,7 +20,7 @@ if (!$result) {
 <head>
     <meta charset="UTF-8">
     <title>Ligas</title>
-    <link rel="stylesheet" href="csspadrao.css">
+    <link rel="stylesheet" href="CSS/csspadrao.css">
 </head>
 <body>
 

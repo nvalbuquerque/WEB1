@@ -49,7 +49,7 @@ $ligas = $conn->query("SELECT idliga, nomeliga FROM ligatable ORDER BY nomeliga 
 <head>
     <meta charset="UTF-8">
     <title>Cadastrar Liga</title>
-    <link rel="stylesheet" href="csspadrao.css">
+    <link rel="stylesheet" href="CSS/csspadrao.css">
 </head>
 <body>
     <div class="background"></div>
