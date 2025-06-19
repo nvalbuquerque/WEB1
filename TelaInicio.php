@@ -6,13 +6,12 @@ if (!isset($_SESSION['idusuario'])) {
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="CSS/telainicial.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="CSS/telainicial.css" />
     <title>Início</title>
 </head>
 <body>
@@ -22,23 +21,23 @@ if (!isset($_SESSION['idusuario'])) {
         <h1>Início</h1>
 
         <div class="Jogar">
-            <button id="Botao">Jogar</button>
+            <button class="botao" onclick="window.location.href='index.php'">Jogar</button>
         </div>
 
         <div class="Historico">
-            <button id="Botao" onclick="window.location.href='telaHistorico.php'">Histórico</button>
+            <button class="botao" onclick="window.location.href='telaHistorico.php'">Histórico</button>
         </div>
 
         <div class="Classificacao">
-            <button id="Botao" onclick="window.location.href='TelaClassificacao.php'">Classificação</button>
+            <button class="botao" onclick="window.location.href='TelaClassificacao.php'">Classificação</button>
         </div>
 
         <div class="Liga">
-            <button id="Botao" onclick="window.location.href='ligas.php'">Ligas</button>
+            <button class="botao" onclick="window.location.href='ligas.php'">Ligas</button>
         </div>
 
         <div class="Sair">
-            <button id="Botao" onclick="window.location.href='logout.php'">Sair</button>
+            <button class="botao" onclick="window.location.href='logout.php'">Sair</button>
         </div>
 
         <div id="texto">

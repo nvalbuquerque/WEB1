@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_id'] = $idusuario;
                 $_SESSION['nomeusuario'] = $nomeusuario;
 
-                echo "<script>window.location.href = 'TelaInicio.html';</script>";
+                echo "<script>window.location.href = 'TelaInicio.php';</script>";
                 exit;
             } else {
                 $erroSenha = "* Senha incorreta.";

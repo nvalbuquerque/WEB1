@@ -5,13 +5,24 @@ require_once 'src/db.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$result = $conn->query("SHOW TABLES LIKE 'cadastrotable'");
-if ($result->num_rows == 0) {
-    die("A tabela cadastrotable não existe!");
-}
-
 if ($conn->connect_error) {
     die("Conexão falhou: " . $conn->connect_error);
+}
+
+// Cria a tabela cadastrotable caso não exista
+$sqlCreateTable = "
+CREATE TABLE IF NOT EXISTS cadastrotable (
+    idusuario INT AUTO_INCREMENT PRIMARY KEY,
+    nomeusuario VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    idliga INT DEFAULT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+";
+
+if ($conn->query($sqlCreateTable) === FALSE) {
+    die("Erro ao criar tabela: " . $conn->error);
 }
 
 $existencia = true;
@@ -35,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($erroNome !== '' || $erroEmail !== '' || $erroSenha !== '') {
         $existencia = false;
-    } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "<p class='erro'>* Email inválido.</p>";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $erroEmail = "* Email inválido.";
         $existencia = false;
     }
 
@@ -44,22 +55,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
         $stmt = $conn->prepare("INSERT INTO cadastrotable (nomeusuario, email, senha, idliga) VALUES (?, ?, ?, NULL)");
+        if ($stmt === false) {
+            die("Erro na preparação da query: " . $conn->error);
+        }
         $stmt->bind_param("sss", $nome, $email, $senhaHash);
 
-        if ($stmt->execute() === false) {
-            if ($conn->errno == 1062) {
-                echo "<p class='erro'>Este email já está cadastrado!</p>";
-            } else {
-                echo "<p class='erro'>Erro ao cadastrar: " . $conn->error . "</p>";
-            }
-        } else {
-            echo "<script>
-                    setTimeout(function() {
-                        alert('Cadastro realizado com sucesso! Você será redirecionado para a tela de início.');
-                        window.location.href = 'TelaInicio.php';
-                    }, 2000);
-                </script>";
+        try {
+            $stmt->execute();
             $stmt->close();
+            echo "<script>
+                    alert('Cadastro realizado com sucesso! Você será redirecionado para a tela de início.');
+                    window.location.href = 'TelaInicio.php';
+                  </script>";
+            exit;
+        } catch (mysqli_sql_exception $e) {
+            if ($e->getCode() == 1062) {
+                // Código do erro 1062 = duplicata de chave única (email já existe)
+                $erroEmail = "Este email já está cadastrado!";
+            } else {
+                die("Erro ao cadastrar: " . $e->getMessage());
+            }
         }
     }
 }
@@ -68,53 +83,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Cadastro de Usuário</title>
-    <link rel="stylesheet" href="CSS/csspadrao.css">
+    <link rel="stylesheet" href="CSS/csspadrao.css" />
 </head>
 <body>
     <div class="background"></div>
     <div class="retangulo">
         <h1>Cadastro</h1>
-
         <form method="POST" action="">
             <div id="texto">
                 <div class="form-group">
                     <label for="nome">Nome</label>
-                    <input type="text" id="nome" name="nome" required 
-                        value="<?php echo isset($_POST['nome']) ? htmlspecialchars($_POST['nome']) : '' ?>">
-                    <?php if(isset($erroNome) && $erroNome !== '') echo "<p class='erro'>$erroNome</p>"; ?>
+                    <input type="text" id="nome" name="nome" required
+                        value="<?php echo isset($_POST['nome']) ? htmlspecialchars($_POST['nome']) : '' ?>" />
+                    <?php if (!empty($erroNome)) echo "<p class='erro'>$erroNome</p>"; ?>
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required 
-                        value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
-                    <?php if(isset($erroEmail) && $erroEmail !== '') echo "<p class='erro'>$erroEmail</p>"; ?>
+                    <input type="email" id="email" name="email" required
+                        value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>" />
+                    <?php if (!empty($erroEmail)) echo "<p class='erro'>$erroEmail</p>"; ?>
                 </div>
 
                 <div class="form-group">
                     <label for="senha">Senha</label>
-                    <input type="password" id="senha" name="senha" required>
-                    <?php if(isset($erroSenha) && $erroSenha !== '') echo "<p class='erro'>$erroSenha</p>"; ?>
+                    <input type="password" id="senha" name="senha" required />
+                    <?php if (!empty($erroSenha)) echo "<p class='erro'>$erroSenha</p>"; ?>
                 </div>
 
                 <div class="form-group">
                     <label for="confirmar_senha">Confirmar senha</label>
-                    <input type="password" id="confirmar_senha" name="confirmar_senha" required>
-                    <?php if(isset($erroConfirmarSenha) && $erroConfirmarSenha !== '') echo "<p class='erro'>$erroConfirmarSenha</p>"; ?>
+                    <input type="password" id="confirmar_senha" name="confirmar_senha" required />
+                    <?php if (!empty($erroConfirmarSenha)) echo "<p class='erro'>$erroConfirmarSenha</p>"; ?>
                 </div>
 
                 <div class="BotaoCadastrar">
-                    <button type="submit" id="Botao">Cadastrar</button>
+                    <button type="submit" id="botaoCadastrar">Cadastrar</button>
                 </div>
             </div>
         </form>
 
         <div class="BotaoEntrar">
             <h5>Já tem cadastro?</h5>
-            <button type="button" id="Botao" onclick="window.location.href='login.php'">Entrar</button>
+            <button type="button" id="botaoEntrar" onclick="window.location.href='login.php'">Entrar</button>
         </div>
     </div>
 </body>

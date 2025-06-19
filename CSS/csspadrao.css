@@ -51,7 +51,7 @@ text-align: center;
 } 
 
 
-#Botao {
+.botao {
   margin-top: 20px;
   position: relative;
   padding: 15px 30px;

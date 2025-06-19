@@ -1,74 +1,55 @@
 <?php
 session_start();
 require_once 'src/db.php';
-
 header('Content-Type: application/json');
 
-// Verifica se é uma requisição POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Método de requisição inválido. Use POST.'
-    ]);
+if (!isset($_SESSION['idusuario'])) {
+    echo json_encode(['erro' => 'Usuário não autenticado']);
+    exit;
+}
+$idusuario = $_SESSION['idusuario'];
+
+$data = json_decode(file_get_contents('php://input'), true);
+
+if (!isset($data['pontuacao']) || !isset($data['tempo'])) {
+    echo json_encode(['erro' => 'Dados incompletos']);
     exit;
 }
 
-// Lê e decodifica o corpo JSON da requisição
-$input = file_get_contents('php://input');
-$data = json_decode($input, true);
+$pontuacao = (int)$data['pontuacao'];
+$tempo = $data['tempo'];
+$idpartida = time();
 
-// Recupera user_id da sessão
-$user_id = $_SESSION['user_id'] ?? null;
-$pontuacao = $data['pontuacao'] ?? null;
+// Criar tabela se não existir (sem usar prepare)
+$conn->query("
+    CREATE TABLE IF NOT EXISTS historicotable (
+        idhistorico INT AUTO_INCREMENT PRIMARY KEY,
+        idusuario INT NOT NULL,
+        idpartida INT NOT NULL,
+        tempo_jogo TIME NOT NULL,
+        pontuacaoPartida INT DEFAULT 0,
+        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (idusuario) REFERENCES cadastrotable(idusuario)
+    )
+");
 
-// Valida os dados recebidos
-if (!$user_id || !is_numeric($pontuacao)) {
-    http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Usuário não autenticado ou pontuação inválida.'
-    ]);
-    exit;
-}
-
-// Verifica conexão com o banco
-if (!isset($conn) || $conn->connect_error) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Erro de conexão com o banco de dados.'
-    ]);
-    exit;
-}
-
-// Prepara e executa a inserção da pontuação
-$stmt = $conn->prepare("INSERT INTO scores (usuario_id, pontuacao) VALUES (?, ?)");
+$stmt = $conn->prepare("
+    INSERT INTO historicotable (idusuario, idpartida, tempo_jogo, pontuacaoPartida)
+    VALUES (?, ?, ?, ?)
+");
 
 if (!$stmt) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Erro ao preparar a query: ' . $conn->error
-    ]);
+    echo json_encode(['erro' => 'Erro no prepare: ' . $conn->error]);
     exit;
 }
 
-$stmt->bind_param("ii", $user_id, $pontuacao);
+$stmt->bind_param("iisi", $idusuario, $idpartida, $tempo, $pontuacao);
 
 if ($stmt->execute()) {
-    echo json_encode([
-        'success' => true,
-        'message' => 'Pontuação salva com sucesso!'
-    ]);
+    echo json_encode(['sucesso' => true, 'mensagem' => 'Pontuação salva com sucesso!']);
 } else {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Erro ao salvar pontuação: ' . $stmt->error
-    ]);
+    echo json_encode(['erro' => 'Erro ao salvar pontuação: ' . $stmt->error]);
 }
 
 $stmt->close();
 $conn->close();
-?>

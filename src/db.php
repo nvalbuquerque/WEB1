@@ -1,8 +1,8 @@
 <?php
 $servername = "localhost";
 $username = "root";
-$password = "";
-$port = 3307;
+$password = ""; 
+$port = 3306;
 $dbname = "web1db";
 
 $conn = new mysqli($servername, $username, $password, $dbname, $port);

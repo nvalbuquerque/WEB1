@@ -1,161 +1,79 @@
-// JS/game.js
-
-const words = [
-  "espaco", "sideral", "universo", "galaxia", "estrela", "planeta", "lua", "sol", "orbita",
-  "cometa", "asteroide", "meteoro", "atmosfera", "cosmo", "astronauta", "telescopio",
-  "nave", "foguete", "satelite", "sonda", "gravidade", "constelacao", "via lactea",
-  "nebulosa", "quasar", "pulsar", "buraco negro", "exoplaneta", "sistemasolar",
-  "extraterrestre", "exploracao", "colonizacao", "jupiter", "marte", "venus",
-  "mercurio", "saturno", "urano", "netuno", "plutao", "estrelacadente",
-  "cinturaodeasteroides", "bigbang", "buracodeverme", "materiaescura",
-  "energiaescura", "velocidadedaluz", "cosmonauta", "astrofisica", "intergalactico"
-];
-
-let wordDisplayEl;
-let guessInputEl;
-let timerDisplayEl;
-let scoreDisplayEl;
-let startButtonEl;
-let feedbackMessageEl;
-
-let currentWord = "";
+let tempoRestante = 60;
 let score = 0;
-let timeLeft = 60;
-let timerInterval;
-let gameActive = false;
+let paragrafoAtual = '';
+let autorAtual = '';
+let indiceLetra = 0;
+let paragrafos = [];
 
-document.addEventListener("DOMContentLoaded", () => {
-  wordDisplayEl = document.getElementById("palavra-display");
-  guessInputEl = document.getElementById("input-digitacao");
-  timerDisplayEl = document.getElementById("tempo");
-  scoreDisplayEl = document.getElementById("pontuacao");
-  startButtonEl = document.getElementById("iniciar-jogo");
-  feedbackMessageEl = document.getElementById("feedback-mensagem");
+const textoElem = document.getElementById('texto');
+const autorElem = document.getElementById('autor');
+const inputElem = document.getElementById('inputTexto');
+const timerElem = document.getElementById('timer');
+const scoreElem = document.getElementById('score');
 
-  timerDisplayEl.textContent = `Tempo: ${timeLeft}s`;
-  scoreDisplayEl.textContent = `Pontuação: ${score}`;
+fetch('JS/words.json')
+  .then(res => res.json())
+  .then(data => {
+    paragrafos = data.paragrafos;
+    sortearParagrafo();
+    startTimer();
+  });
 
-  startButtonEl.addEventListener("click", startGame);
-  guessInputEl.addEventListener("keypress", handleKeyPress);
+function sortearParagrafo() {
+  const aleatorio = Math.floor(Math.random() * paragrafos.length);
+  paragrafoAtual = paragrafos[aleatorio].texto;
+  autorAtual = paragrafos[aleatorio].autor;
 
-  guessInputEl.disabled = true;
-});
+  textoElem.innerText = paragrafoAtual;
+  autorElem.innerText = `— ${autorAtual}`;
 
-function getRandomWord() {
-  const randomIndex = Math.floor(Math.random() * words.length);
-  return words[randomIndex];
-}
-
-function startGame() {
-  score = 0;
-  timeLeft = 60;
-  gameActive = true;
-
-  scoreDisplayEl.textContent = `Pontuação: ${score}`;
-  timerDisplayEl.textContent = `Tempo: ${timeLeft}s`;
-  feedbackMessageEl.textContent = "";
-  guessInputEl.value = "";
-  guessInputEl.disabled = false;
-  guessInputEl.focus();
-
-  startButtonEl.disabled = true;
-
-  nextWord();
-  startTimer();
-}
-
-function nextWord() {
-  currentWord = getRandomWord();
-  wordDisplayEl.textContent = currentWord;
-  guessInputEl.value = "";
-}
-
-function handleKeyPress(event) {
-  if (event.key === "Enter" && gameActive) {
-    checkGuess();
-  }
-}
-
-function checkGuess() {
-  const userGuess = guessInputEl.value.toLowerCase().trim();
-
-  if (userGuess === currentWord) {
-    const wordLength = currentWord.length;
-    let pointsEarned = 0;
-
-    if (wordLength <= 5) {
-      pointsEarned = 10;
-    } else if (wordLength <= 8) {
-      pointsEarned = 20;
-    } else if (wordLength <= 12) {
-      pointsEarned = 35;
-    } else {
-      pointsEarned = 50;
-    }
-
-    score += pointsEarned;
-    feedbackMessageEl.textContent = `Correto! (+${pointsEarned} pontos)`;
-    feedbackMessageEl.style.color = "green";
-
-  } else {
-    feedbackMessageEl.textContent = `Errado! A palavra correta era "${currentWord}".`;
-    feedbackMessageEl.style.color = "red";
-  }
-
-  scoreDisplayEl.textContent = `Pontuação: ${score}`;
-  nextWord();
+  inputElem.value = '';
+  indiceLetra = 0;
 }
 
 function startTimer() {
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    timerDisplayEl.textContent = `Tempo: ${timeLeft}s`;
+  const interval = setInterval(() => {
+    tempoRestante--;
+    timerElem.innerText = `Tempo: ${tempoRestante}s`;
 
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      endGame();
+    if (tempoRestante <= 0) {
+      clearInterval(interval);
+      inputElem.disabled = true;
+
+      const tempoFormatado = new Date(60 * 1000).toISOString().substr(11, 8);
+
+      fetch('salvar_pontuacao.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pontuacao: score,
+          tempo: tempoFormatado
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(`Tempo esgotado!\nPontuação: ${score}\n${data.mensagem || data.erro}`);
+      })
+      .catch(() => {
+        alert(`Tempo esgotado!\nPontuação: ${score}\nErro ao salvar pontuação.`);
+      });
     }
   }, 1000);
 }
 
-function endGame() {
-  gameActive = false;
-  guessInputEl.disabled = true;
-  wordDisplayEl.textContent = `Fim de jogo! Sua pontuação final: ${score}`;
-  startButtonEl.disabled = false;
-  feedbackMessageEl.textContent = "Jogo encerrado.";
-  feedbackMessageEl.style.color = "black";
+inputElem.addEventListener('input', () => {
+  const input = inputElem.value;
+  const esperado = paragrafoAtual[indiceLetra];
 
-  sendScore(score);
-}
+  if (input.at(-1) === esperado) {
+    score++;
+    indiceLetra++;
+    scoreElem.innerText = `Pontuação: ${score}`;
 
-async function sendScore(finalScore) {
-  const userId = 1;
-
-  try {
-    const response = await fetch("salvar_pontuacao.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        user_id: userId,
-        pontuacao: finalScore,
-      }),
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      console.log("Resposta do servidor:", result.message);
-      alert(`Pontuação salva com sucesso! ${result.message || ''}`);
-    } else {
-      throw new Error(result.message || `Erro do servidor: ${response.status}`);
+    if (indiceLetra >= paragrafoAtual.length) {
+      sortearParagrafo();
     }
-
-  } catch (error) {
-    console.error("Erro ao enviar pontuação:", error);
-    alert(`Erro ao salvar sua pontuação: ${error.message || 'Verifique o console para mais detalhes.'}`);
+  } else {
+    inputElem.value = input.slice(0, -1);
   }
-}
+});
