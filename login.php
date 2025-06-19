@@ -27,7 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->fetch();
 
             if (password_verify($senha, $senhaHash)) {
+                // Corrigido: define também $_SESSION['user_id'] para uso em salvar_pontuacao.php
                 $_SESSION['idusuario'] = $idusuario;
+                $_SESSION['user_id'] = $idusuario;
                 $_SESSION['nomeusuario'] = $nomeusuario;
 
                 echo "<script>window.location.href = 'TelaInicio.html';</script>";
